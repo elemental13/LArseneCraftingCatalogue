@@ -1,0 +1,85 @@
+﻿@page
+<style>
+    #searchBar {
+        background-image: url('/images/search.svg'); /* Add a search icon to input */
+        background-position: 10px 12px; /* Position the search icon */
+        background-repeat: no-repeat; /* Do not repeat the icon image */
+        width: 100%; /* Full-width */
+        font-size: 16px; /* Increase font-size */
+        padding: 12px 0px 12px 40px; /* Add some padding */
+        border: 1px solid #ddd; /* Add a grey border */
+        margin-bottom: 12px; /* Add some space below the input */
+    }
+</style>
+
+@model InventoryModel
+@{
+    ViewData["Title"] = "Inventory";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>This page shows the users inventory.</p>
+
+@* <div class="container">
+    <input type="text" id="searchBar" onkeyup="myFunction()" placeholder="Search ...">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="armorTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Armor Name</th>
+                    <th>Type</th>
+                    <th>Material Cost</th>
+                    <th>Tool</th>
+                    <th>DC</th>
+                    <th>Time (hrs)</th>
+                    <th>Item Value</th>
+                    <th>Armor Class (AC)</th>
+                    <th>Str</th>
+                    <th>Stealth</th>
+                </tr>
+            </thead>
+            @foreach (var armor in Model.GetArmorList()) {
+                <tr>
+                    <td>@armor?.Name</td>
+                    <td>@armor?.ArmorType</td>
+                    <td>@armor?.MaterialCost</td>
+                    <td>@Model.GetToolName(armor?.ToolId ?? 0)</td>
+                    <td>@armor?.DC</td>
+                    <td>@armor?.TimeToCraft</td>
+                    <td>@armor?.ItemValue</td>
+                    <td>@armor?.ArmorClass</td>
+                    <td>@armor?.StrengthRequirement</td>
+                    <td>@armor?.StealthModifier</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+@{
+    <script type="text/javascript">
+        function myFunction() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchBar");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("armorTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                // only check the first column
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+} *@
