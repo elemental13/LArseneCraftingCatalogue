@@ -1,0 +1,95 @@
+﻿@page
+<style>
+    #searchBar {
+        background-image: url('/images/search.svg'); /* Add a search icon to input */
+        background-position: 10px 12px; /* Position the search icon */
+        background-repeat: no-repeat; /* Do not repeat the icon image */
+        width: 100%; /* Full-width */
+        font-size: 16px; /* Increase font-size */
+        padding: 12px 0px 12px 40px; /* Add some padding */
+        border: 1px solid #ddd; /* Add a grey border */
+        margin-bottom: 12px; /* Add some space below the input */
+    }
+</style>
+
+@model PartModel
+@{
+    ViewData["Title"] = "Part List";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>This page will show the Monster Parts in the current database</p>
+
+<div class="container">
+    <input type="text" id="searchBarName" onkeyup="searchByName()" placeholder="Search name...">
+    <input type="text" id="searchBarType" onkeyup="searchByType()" placeholder="Search type...">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="PartTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>Type</th>
+                    <th>DC</th>
+                </tr>
+            </thead>
+            @foreach (var part in Model.GetPartList()) {
+                <tr>
+                    <td>@part?.Name</td>
+                    <td>@part?.Type</td>
+                    <td>@part?.DC</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+@{
+    <script type="text/javascript">
+        function searchByName() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchBarName");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("PartTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                // only check the first column
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function searchByType() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchBarType");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("PartTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                // only check the first column
+                td = tr[i].getElementsByTagName("td")[1];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+}

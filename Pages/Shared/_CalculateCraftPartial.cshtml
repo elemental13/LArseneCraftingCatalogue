@@ -1,0 +1,68 @@
+@using LArseneCraftingCatalogue.Services
+
+@model CraftingCalculatorModel
+@inject CraftingService craftingService
+
+<div style="width:100%; margin:0 auto;">
+    <span><b>Enchanting Ability Check:</b> Spellcast Ability (@craftingService.GetAbilityFromMonsterPart(craftingService.GetMonsterComponent(craftingService.CraftableItem?.MonsterComponentId ?? 0)))</span>
+    <span> <b>Crafting Bonus:</b> +6 for Journeymen, +8 for expert, +11 for master</span> <br/>
+    <span> Each member of the crafting team makes a check at the end, weighted by the </span>
+    <table id="enchantingTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Total Crafting Hours (before craftsmen)</th>
+                <th>Days to complete (using crafting teams working together)</th>
+                <th>DC</th>
+                <th>Total Cost to Craft (gold)</th>
+                <th>Journeymen Costs (gold)</th>
+                <th>Expert Costs (gold)</th>
+                <th>Master Costs (gold)</th>
+            </tr>
+        </thead>
+            <tr>
+                @{
+                    var essence = craftingService.GetEssenceByRarity(craftingService.CraftableItem?.Rarity);
+                    var dc = craftingService.GetEnchantingDC(essence);
+                    var crafingTime = craftingService.GetEnchantingHours(essence, craftingService.CraftableItem?.Attunement);
+                    var costsToComplete = craftingService.CalculateCostsToComplete(craftingService.EnchantInfo.Journeymen, craftingService.EnchantInfo.Experts, craftingService.EnchantInfo.Masters, crafingTime);
+                }
+                <td>@crafingTime</td>
+                <td>@craftingService.CalculateDaysToComplete(craftingService.EnchantInfo.Journeymen, craftingService.EnchantInfo.Experts, craftingService.EnchantInfo.Masters, crafingTime)</td>
+                <td>@dc</td>
+                <td>@costsToComplete.TotalCosts</td>
+                <td>@costsToComplete.JourneymenCosts</td>
+                <td>@costsToComplete.ExpertsCosts</td>
+                <td>@costsToComplete.MastersCosts</td>
+            </tr>
+    </table>
+    @{
+        var rollList = new List<int>();
+        
+        for (int i = 1; i <= (craftingService?.EnchantInfo?.Journeymen ?? 0); i++)
+        {
+            var random = new Random();
+            var roll = random.Next(1, 20) + 6;
+            rollList.Add(roll);
+            <span>Journeyman [@i] rolled: @roll</span><br/>
+        }
+
+        for (int i = 1; i <= (craftingService?.EnchantInfo?.Experts ?? 0); i++)
+        {
+            var random = new Random();
+            var roll = random.Next(1, 20) + 8;
+            rollList.Add(roll);
+            <span>Expert [@i] rolled: @roll</span><br/>
+        }
+
+        for (int i = 1; i <= (craftingService?.EnchantInfo?.Masters ?? 0); i++)
+        {
+            var random = new Random();
+            var roll = random.Next(1, 20) + 11;
+            rollList.Add(roll);
+            <span>Master [@i] rolled: @roll</span><br/>
+        }
+
+        <span>Averge Roll: @rollList.Average()</span>
+    }
+    <span></span>
+</div>

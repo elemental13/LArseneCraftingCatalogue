@@ -10,6 +10,7 @@
                 <th>Rarity</th>
                 <th>Attunement</th>
                 <th>Component Type</th>
+                <th>MetaTag</th>
                 <th>Component Name</th>
             </tr>
         </thead>
@@ -21,6 +22,7 @@
                 <td>@item?.Rarity</td>
                 <td>@item?.Attunement</td>
                 <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Type</td>
+                <td>@item?.MetaTag</td>
                 <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Name</td>
             </tr>
         }

@@ -11,7 +11,8 @@
 </div>
 
 <div class="manufacturingCatalogue">
-    <span>Tell me what you got?</span><input type="text" id="searchBar" onkeyup="handleKeyUp(this.value)" placeholder="Search ...">
+    <span>Tell me what you got?</span><input type="text" id="searchBar" onkeyup="handleKeyUp(this.value)" placeholder="Search by part...">
+    <span>Or tell me what you want?</span><input type="text" id="searchBarItem" onkeyup="handleKeyUpItem(this.value)" placeholder="Search by Item ...">
 </div>
 
 @* Will get replaced by ajax using partial *@
@@ -27,6 +28,7 @@
                 <th>Rarity</th>
                 <th>Attunement</th>
                 <th>Component Type</th>
+                <th>MetaTag</th>
                 <th>Component Name</th>
             </tr>
         </thead>
@@ -38,6 +40,7 @@
                 <td>@item?.Rarity</td>
                 <td>@item?.Attunement</td>
                 <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Type</td>
+                <td>@item?.MetaTag</td>
                 <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Name</td>
             </tr>
         }
@@ -60,6 +63,21 @@
             error: function () 
             {
                 console.log("error in ajax");
+            }
+        });
+    }
+    function handleKeyUpItem(value) {
+        $.ajax({
+            data: {inputValue: value},
+            url:'/Index?handler=ProcessItemSearch',
+            type:'GET',
+            success: function (result)
+            {
+                $("#container").html(result);
+            },
+            error: function () 
+            {
+                console.log("error in ajax for item search");
             }
         });
     }

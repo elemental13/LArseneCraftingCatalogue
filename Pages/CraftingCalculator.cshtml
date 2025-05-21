@@ -1,0 +1,94 @@
+@page
+<style>
+    .userInput {
+        font-size: 16px; /* Increase font-size */
+        padding: 0px; /* Add some padding */
+        border: 1px solid #ddd; /* Add a grey border */
+        margin-bottom: 12px; /* Add some space below the input */
+    }
+    .label {
+        padding: 12px;
+    }
+</style>
+
+@model CraftingCalculatorModel
+@{
+    ViewData["Title"] = "Crafting Calculator";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>Calculate how much money and time it takes to create something!!</p>
+
+<div>
+    <span class="label">First lets find an item to craft:</span>
+    <input class="userInput" type="text" id="searchBar" onkeyup="handleKeyUp(this.value)" placeholder="Search magic item...">
+</div>
+
+<div id="craftItem"></div>
+
+<div>
+    <span>How Many Crafters?</span><br/>
+    <input class="userInput" type="text" id="journeymen" onkeyup='calcCrafting(this.value ?? "0", document.getElementById("experts").value, document.getElementById("masters").value)' placeholder="Number of journeymen..."><span class="label">journeymen</span><br/>
+    <input class="userInput" type="text" id="experts" onkeyup='calcCrafting(document.getElementById("journeymen").value, this.value ?? "0", document.getElementById("masters").value)' placeholder="Number of experts..."><span class="label">experts</span><br/>
+    <input class="userInput" type="text" id="masters" onkeyup='calcCrafting(document.getElementById("journeymen").value, document.getElementById("experts").value, this.value ?? "0")' placeholder="Number of masters..."><span class="label">masters</span><br/>
+</div>
+
+<div>
+    <input type="checkbox" onchange='handleChange(this)'> <span><b>Forging?</b> (if not checked, assume enchanting, which will require the base item already made/bought)</span>
+</div>
+<br/>
+<div id="calcResults"></div>
+
+
+@section scripts {
+    <script>
+        handleKeyUp("");
+        function handleKeyUp(value) {
+            $.ajax({
+                data: {inputValue: value},
+                url:'/CraftingCalculator?handler=ProcessInput',
+                type:'GET',
+                success: function (result)
+                {
+                    $("#craftItem").html(result);
+                    calcCrafting(document.getElementById("journeymen").value, document.getElementById("experts").value, document.getElementById("masters").value);
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+        function calcCrafting(j, e, m) {
+            $.ajax({
+                data: {journeymen: j, experts: e, masters: m},
+                url:'/CraftingCalculator?handler=ProcessCrafters',
+                type:'GET',
+                success: function (result)
+                {
+                    $("#calcResults").html(result);
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+
+        function handleChange(checkbox) {
+            $.ajax({
+                data: {checkboxValue: checkbox.checked},
+                url:'/CraftingCalculator?handler=ProcessCheckbox',
+                type:'GET',
+                success: function (result)
+                {
+                    console.log("checkbox logged");
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+    </script>
+}

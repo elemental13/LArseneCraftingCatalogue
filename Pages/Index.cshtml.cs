@@ -36,6 +36,28 @@ public class IndexModel(ILogger<IndexModel> logger, CraftingContext db) : PageMo
         return partialPage;
     }
 
+    public IActionResult OnGetProcessItemSearch(string inputValue)
+    {
+        // empty the list
+        CraftableItems = [];
+        
+        if (string.IsNullOrEmpty(inputValue))
+        {
+            CraftableItems = _db.MagicItems.ToList();
+        } else {
+            CraftableItems = _db.MagicItems.ToList().FindAll(x => x.Name?.ToLower().Contains(inputValue.ToLower()) ?? false);
+        }
+        ViewData["CraftableItems"] = CraftableItems;
+
+        var partialPage =  new PartialViewResult
+        {
+            ViewName = "_CraftableItemsPartial",
+            ViewData = ViewData,
+        };
+
+        return partialPage;
+    }
+
     public List<MagicItem> GetCraftableItems()
     {
         return CraftableItems;

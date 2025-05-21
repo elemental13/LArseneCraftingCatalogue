@@ -8,6 +8,7 @@ public class CraftingContext : DbContext
     public DbSet<MonsterComponent> MonsterComponents { get; set; }
     public DbSet<MagicItem> MagicItems { get; set; }
     public DbSet<Essence> Essence { get; set;}
+    public DbSet<SkillCheck> SkillChecks { get; set; }
 
 
     public string DbPath { get; }
@@ -35,6 +36,7 @@ public class CraftingContext : DbContext
         var monsterComponentList = Operations.CreateMonsterComponents();
         var magicItemList = Operations.CreateMagicItems(monsterComponentList);
         var essenseList = Operations.CreateEssences();
+        var skillChecksList = Operations.CreateSkillChecks();
 
         // seed the database with initial data, using HasData will make sure it only is created if it doesnt already exist
         modelBuilder.Entity<Tool>().HasData(toolList);
@@ -43,6 +45,7 @@ public class CraftingContext : DbContext
         modelBuilder.Entity<MonsterComponent>().HasData(monsterComponentList);
         modelBuilder.Entity<MagicItem>().HasData(magicItemList);
         modelBuilder.Entity<Essence>().HasData(essenseList);
+        modelBuilder.Entity<SkillCheck>().HasData(skillChecksList);
     }
 }
 
@@ -112,4 +115,11 @@ public class Essence
     public string? DC { get; set; }
     public string? Name { get; set; }
     public string? ItemRarity { get; set; }
+}
+
+public class SkillCheck
+{
+    public int SkillCheckId { get; set; }
+    public string? CreatureType { get; set; }
+    public string? Skill { get; set; }
 }

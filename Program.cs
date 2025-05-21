@@ -1,3 +1,4 @@
+using LArseneCraftingCatalogue.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ Console.WriteLine($"Database path: {DbPath}");
 // add DP injection for the db so other pages can use them
 builder.Services.AddDbContext<CraftingContext>(options => 
     options.UseSqlite($"Data Source={DbPath}"));
+
+builder.Services.AddSingleton<CraftingService>();
 
 var app = builder.Build();
 
