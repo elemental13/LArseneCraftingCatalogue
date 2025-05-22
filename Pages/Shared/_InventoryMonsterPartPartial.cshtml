@@ -1,0 +1,96 @@
+@using LArseneCraftingCatalogue.Services
+@model InventoryModel
+
+@inject CraftingService craftingService
+
+<div class="container">
+    <input type="text" class="searchBar" id="searchBar" onkeyup="myFunction()" placeholder="Search ...">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="inventoryTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Part Name</th>
+                    <th>Type</th>
+                    <th>DC</th>
+                    <th></th>
+                </tr>
+            </thead>
+            @foreach (var part in craftingService.GetInventoryParts()) {
+                <tr>
+                    <td>@part?.Name</td>
+                    <td>@part?.Type</td>
+                    <td>@part?.DC</td>
+                    <td><button onclick="removePart(@part?.MonsterComponentId)">Remove</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    
+<script>
+    function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchBar");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("inventoryTable");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            // only check the first column
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function removePart(value) {
+        $.ajax({
+            data: {monsterPartId: value},
+            url:'/Inventory?handler=ProcessRemovePart',
+            type:'GET',
+            success: function (result)
+            {
+                $("#partList").html(result);
+                // read from local storage
+                var partsData = JSON.parse(window.localStorage.getItem('partsList') ?? '[]');
+                // remove
+                const index = partsData.indexOf(value);
+                if (index > -1) partsData.splice(index, 1);
+                // now store
+                window.localStorage.setItem('partsList', JSON.stringify(partsData));
+                loadItems();
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
+
+    function loadItems() {
+        $.ajax({
+            url:'/Inventory?handler=ProcessGetMagicItems',
+            type:'GET',
+            success: function (result)
+            {
+                $("#craftingList").html(result);
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
+</script>
+

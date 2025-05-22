@@ -1,0 +1,88 @@
+@using LArseneCraftingCatalogue.Services
+@model InventoryModel
+
+@inject CraftingService craftingService
+
+<div class="container">
+    <input type="text" class="searchBar" id="searchBarMaterials" onkeyup="materialSearch()" placeholder="Search ...">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="materialTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Material Name</th>
+                    <th>Type</th>
+                    <th>Harvest Tool</th>
+                    <th>Machinery</th>
+                    <th>Product</th>
+                    <th>Unrefined Weight (lbs)</th>
+                    <th>Refined Weight (lbs)</th>
+                    <th>Refined Value</th>
+                    <th></th>
+                </tr>
+            </thead>
+            @foreach (var Material in craftingService.GetInventoryMaterials() ?? []) {
+                <tr>
+                    <td>@Material?.Name</td>
+                    <td>@Material?.Type</td>
+                    <td>@Material?.HarvestTool</td>
+                    <td>@Material?.Machinery</td>
+                    <td>@Material?.Product</td>
+                    <td>@Material?.UnrefinedWeight</td>
+                    <td>@Material?.RefinedValue</td>
+                    <td>@Material?.RefinedValue</td>
+                    <td><button onclick="removeMaterial(@Material?.MaterialId)">Remove</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+@{
+    <script>
+        function materialSearch() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchBarMaterials");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("materialTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                // only check the first column
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function removeMaterial(value) {
+            $.ajax({
+                data: {materialId: value},
+                url:'/Inventory?handler=ProcessRemoveMaterial',
+                type:'GET',
+                success: function (result)
+                {
+                    $("#materialList").html(result);
+                    var materialData = JSON.parse(window.localStorage.getItem('materialsList') ?? '[]');
+                    // remove
+                    const index = materialData.indexOf(value);
+                    if (index > -1) materialData.splice(index, 1);
+                    // now store
+                    window.localStorage.setItem('materialsList', JSON.stringify(materialData));
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+    </script>
+}

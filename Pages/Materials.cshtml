@@ -12,34 +12,44 @@
     }
 </style>
 
-@model PartModel
+@model MaterialModel
 @{
-    ViewData["Title"] = "Part List";
+    ViewData["Title"] = "Material List";
 }
 <h1>@ViewData["Title"]</h1>
 
-<p>This page will show the Monster Parts in the current database</p>
+<p>This page will show the Monster Materials in the current database</p>
 
 <div class="container">
     <input type="text" id="searchBarName" onkeyup="searchByName()" placeholder="Search name...">
     <input type="text" id="searchBarType" onkeyup="searchByType()" placeholder="Search type...">
     <br />
     <div style="width:100%; margin:0 auto;">
-        <table id="PartTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <table id="MaterialTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
             <thead>
                 <tr>
-                    <th>Part Name</th>
+                    <th>Material Name</th>
                     <th>Type</th>
-                    <th>DC</th>
+                    <th>Harvest Tool</th>
+                    <th>Machinery</th>
+                    <th>Product</th>
+                    <th>Unrefined Weight (lbs)</th>
+                    <th>Refined Weight (lbs)</th>
+                    <th>Refined Value</th>
                     <th>Add to Inventory</th>
                 </tr>
             </thead>
-            @foreach (var part in Model.GetPartList()) {
+            @foreach (var Material in Model.GetMaterialList()) {
                 <tr>
-                    <td>@part?.Name</td>
-                    <td>@part?.Type</td>
-                    <td>@part?.DC</td>
-                    <td><button onclick="addPart(@part?.MonsterComponentId)">Add</button></td>
+                    <td>@Material?.Name</td>
+                    <td>@Material?.Type</td>
+                    <td>@Material?.HarvestTool</td>
+                    <td>@Material?.Machinery</td>
+                    <td>@Material?.Product</td>
+                    <td>@Material?.UnrefinedWeight</td>
+                    <td>@Material?.RefinedValue</td>
+                    <td>@Material?.RefinedValue</td>
+                    <td><button onclick="addMaterial(@Material?.MaterialId)">Add</button></td>
                 </tr>
             }
         </table>
@@ -47,13 +57,13 @@
 </div>
 
 @{
-    <script>
+    <script type="text/javascript">
         function searchByName() {
             // Declare variables
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("searchBarName");
             filter = input.value.toUpperCase();
-            table = document.getElementById("PartTable");
+            table = document.getElementById("MaterialTable");
             tr = table.getElementsByTagName("tr");
 
             // Loop through all table rows, and hide those who don't match the search query
@@ -76,7 +86,7 @@
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("searchBarType");
             filter = input.value.toUpperCase();
-            table = document.getElementById("PartTable");
+            table = document.getElementById("MaterialTable");
             tr = table.getElementsByTagName("tr");
 
             // Loop through all table rows, and hide those who don't match the search query
@@ -94,19 +104,18 @@
             }
         }
 
-        function addPart(value) {
+        function addMaterial(value) {
             $.ajax({
-                data: {monsterPartId: value},
-                url:'/Parts?handler=ProcessAddPart',
+                data: {monsterMaterialId: value},
+                url:'/Materials?handler=ProcessAddMaterial',
                 type:'GET',
                 success: function (result)
                 {
                     // read from local storage
-                    var partsData = JSON.parse(window.localStorage.getItem('partsList') ?? '[]');
-                    partsData.push(value);
+                    var materialData = JSON.parse(window.localStorage.getItem('materialsList') ?? '[]');
+                    materialData.push(value);
                     // now store
-                    window.localStorage.setItem('partsList', JSON.stringify(partsData));
-
+                    window.localStorage.setItem('materialsList', JSON.stringify(materialData));
                 },
                 error: function () 
                 {

@@ -15,8 +15,8 @@ Console.WriteLine($"Database path: {DbPath}");
 // Operations.Initialize(db);
 
 // add DP injection for the db so other pages can use them
-builder.Services.AddDbContext<CraftingContext>(options => 
-    options.UseSqlite($"Data Source={DbPath}"));
+builder.Services.AddDbContext<CraftingContext>(options =>
+    options.UseSqlite($"Data Source={DbPath}"), ServiceLifetime.Transient);
 
 builder.Services.AddSingleton<CraftingService>();
 

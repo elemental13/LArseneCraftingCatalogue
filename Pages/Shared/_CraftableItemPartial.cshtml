@@ -2,6 +2,7 @@
 @model CraftingCalculatorModel
 
 @inject CraftingService craftingService
+@inject CraftingContext _db
 
 <div style="width:100%; margin:0 auto;">
     <table id="manufactureTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
@@ -23,9 +24,9 @@
                 <td>@craftingService.CraftableItem?.ItemValue</td>
                 <td>@craftingService.CraftableItem?.Rarity</td>
                 <td>@craftingService.CraftableItem?.Attunement</td>
-                <td>@craftingService.GetMonsterComponent(craftingService.CraftableItem?.MonsterComponentId ?? 0)?.Type</td>
+                <td>@_db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == (craftingService.CraftableItem?.MonsterComponentId ?? 0))?.Type</td>
                 <td>@craftingService.CraftableItem?.MetaTag</td>
-                <td>@craftingService.GetMonsterComponent(craftingService.CraftableItem?.MonsterComponentId ?? 0)?.Name</td>
+                <td>@_db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == (craftingService.CraftableItem?.MonsterComponentId ?? 0))?.Name</td>
             </tr>
     </table>
 </div>

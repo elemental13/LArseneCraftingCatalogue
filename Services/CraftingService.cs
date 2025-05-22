@@ -1,46 +1,34 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace LArseneCraftingCatalogue.Services;
 
 public class CraftingService(ILogger<CraftingService> logger)
 {
     private readonly ILogger<CraftingService> _logger = logger;
-    public CraftingContext? db;
+    private readonly object _lock = new();
     public MagicItem? CraftableItem = null;
     public CraftingHelper EnchantInfo = new CraftingHelper();
     public bool Forging = false;
+    public List<MonsterComponent> InventoryParts = [];
+    public List<Material> InventoryMaterials = [];
+    public List<MagicItem> InventoryMagicItems = [];
 
-    public MonsterComponent? GetMonsterComponent(int id)
+    public void ClearMonsterComponents()
     {
-        return db?.MonsterComponents.ToList().Find(x => x.MonsterComponentId == id);
-    }
-
-    // check the item types to see which tool can manufacture this item
-    public List<Tool>? GetToolsForItem(MagicItem? magicItem)
-    {
-        if (magicItem == null) return [];
-        return db?.Tools.ToList().FindAll(x => x.ItemTypes?.Contains(magicItem?.MagicItemType ?? "notfound") ?? false) ?? null;
-    }
-
-    public string GetAbilityFromMonsterPart(MonsterComponent? component)
-    {
-        if (component == null) return "not found";
-        var monsterType = component?.Type ?? "";
-        return db?.SkillChecks.ToList().Find(x =>
+        lock (_lock)
         {
-            if (x?.CreatureType != null)
-            {
-                return x.CreatureType.ToLower() == monsterType.ToLower();
-            }
-            else
-            {
-                return false;
-            }
-        })?.Skill ?? "not found";
+            InventoryParts.Clear();
+        }
+
     }
 
-    public Essence? GetEssenceByRarity(string? rarity)
+    public void ClearMaterials()
     {
-        // cant be found? return the first one
-        return db?.Essence.ToList().Find(x => x?.ItemRarity?.StartsWith(rarity ?? "xx") ?? false);
+        lock (_lock)
+        {
+            InventoryMaterials.Clear();
+        }
+
     }
 
     public double GetEnchantingHours(Essence? essence, string? attunement)
@@ -124,5 +112,65 @@ public class CraftingService(ILogger<CraftingService> logger)
         }
         // must just be a common item rarity which is probably no essense
         return 12;
+    }
+
+    public List<MonsterComponent> GetInventoryParts()
+    {
+        lock (_lock)
+        {
+            return InventoryParts ?? [];
+        }
+    }
+
+    public void AddInventoryParts(MonsterComponent monsterComponent)
+    {
+        lock (_lock)
+        {
+            InventoryParts.Add(monsterComponent);
+        }
+    }
+
+    public List<Material> GetInventoryMaterials()
+    {
+        lock (_lock)
+        {
+            return InventoryMaterials ?? [];
+        }
+    }
+
+    public void AddInventoryMaterials(Material material)
+    {
+        lock (_lock)
+        {
+            InventoryMaterials.Add(material);
+        }
+    }
+
+    public List<MagicItem> GetInventoryMagicItems()
+    {
+        lock (_lock)
+        {
+            return InventoryMagicItems ?? [];
+        }
+    }
+
+    public void RemoveInventoryPart(int monsterPartId)
+    {
+        lock (_lock)
+        {
+            var item = InventoryParts?.First(x => x.MonsterComponentId == monsterPartId);
+            if (item != null) InventoryParts?.Remove(item);
+        }
+
+    }
+    
+    public void RemoveInventoryMaterial(int materialId)
+    {
+        lock (_lock)
+        {
+            var item = InventoryMaterials?.First(x => x.MaterialId == materialId);
+            if (item != null) InventoryMaterials?.Remove(item);
+        }
+        
     }
 }

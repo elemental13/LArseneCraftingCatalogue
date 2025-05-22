@@ -9,6 +9,7 @@ public class CraftingContext : DbContext
     public DbSet<MagicItem> MagicItems { get; set; }
     public DbSet<Essence> Essence { get; set;}
     public DbSet<SkillCheck> SkillChecks { get; set; }
+    public DbSet<Material> Materials { get; set; }
 
 
     public string DbPath { get; }
@@ -37,6 +38,7 @@ public class CraftingContext : DbContext
         var magicItemList = Operations.CreateMagicItems(monsterComponentList);
         var essenseList = Operations.CreateEssences();
         var skillChecksList = Operations.CreateSkillChecks();
+        var materialList = Operations.CreateMaterials();
 
         // seed the database with initial data, using HasData will make sure it only is created if it doesnt already exist
         modelBuilder.Entity<Tool>().HasData(toolList);
@@ -46,6 +48,7 @@ public class CraftingContext : DbContext
         modelBuilder.Entity<MagicItem>().HasData(magicItemList);
         modelBuilder.Entity<Essence>().HasData(essenseList);
         modelBuilder.Entity<SkillCheck>().HasData(skillChecksList);
+        modelBuilder.Entity<Material>().HasData(materialList);
     }
 }
 
@@ -122,4 +125,17 @@ public class SkillCheck
     public int SkillCheckId { get; set; }
     public string? CreatureType { get; set; }
     public string? Skill { get; set; }
+}
+
+public class Material
+{
+    public int MaterialId { get; set; }
+    public string? Type { get; set; }
+    public string? HarvestTool { get; set; }
+    public string? Machinery { get; set; }
+    public string? Product { get; set; }
+    public string? Name { get; set; }
+    public double? UnrefinedWeight { get; set; }
+    public double? RefinedWeight { get; set; }
+    public string? RefinedValue { get; set; }
 }

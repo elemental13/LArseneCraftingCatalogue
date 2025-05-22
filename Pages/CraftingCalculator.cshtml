@@ -1,4 +1,5 @@
-@page
+@page "{partToCraft?}"
+@using LArseneCraftingCatalogue.Services
 <style>
     .userInput {
         font-size: 16px; /* Increase font-size */
@@ -12,8 +13,20 @@
 </style>
 
 @model CraftingCalculatorModel
+@inject CraftingService craftingService
+@inject CraftingContext db
+
 @{
     ViewData["Title"] = "Crafting Calculator";
+    var initialData = Model.PartToCraft;
+
+    if (initialData != null)
+    {
+        craftingService.CraftableItem = db.MagicItems.ToList().Find(x => x.MagicItemId == initialData);
+        @: loadDataFromRoute()
+    } else {
+        @: handleKeyUp("")
+    }
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -21,10 +34,12 @@
 
 <div>
     <span class="label">First lets find an item to craft:</span>
-    <input class="userInput" type="text" id="searchBar" onkeyup="handleKeyUp(this.value)" placeholder="Search magic item...">
+    <input class="userInput" type="text" id="searchBar" onkeyup='handleKeyUp(this.value)' placeholder="Search magic item...">
 </div>
 
-<div id="craftItem"></div>
+<div id="craftItem">
+    @await Html.PartialAsync("_CraftableItemPartial")
+</div>
 
 <div>
     <span>How Many Crafters?</span><br/>
@@ -37,58 +52,72 @@
     <input type="checkbox" onchange='handleChange(this)'> <span><b>Forging?</b> (if not checked, assume enchanting, which will require the base item already made/bought)</span>
 </div>
 <br/>
-<div id="calcResults"></div>
+<div id="calcResults">
+    @await Html.PartialAsync("_CalculateCraftPartial")
+</div>
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    function handleKeyUp(value) {
+        $.ajax({
+            data: {inputValue: value},
+            url:'/CraftingCalculator?handler=ProcessInput',
+            type:'GET',
+            success: function (result)
+            {
+                $("#craftItem").html(result);
+                calcCrafting(document.getElementById("journeymen").value, document.getElementById("experts").value, document.getElementById("masters").value);
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
+    function loadDataFromRoute() {
+        $.ajax({
+            url:'/CraftingCalculator?handler=ProcessRouteData',
+            type:'GET',
+            success: function (result)
+            {
+                $("#craftItem").html(result);
+                calcCrafting(document.getElementById("journeymen").value, document.getElementById("experts").value, document.getElementById("masters").value);
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
+    function calcCrafting(j, e, m) {
+        $.ajax({
+            data: {journeymen: j, experts: e, masters: m},
+            url:'/CraftingCalculator?handler=ProcessCrafters',
+            type:'GET',
+            success: function (result)
+            {
+                $("#calcResults").html(result);
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
 
-@section scripts {
-    <script>
-        handleKeyUp("");
-        function handleKeyUp(value) {
-            $.ajax({
-                data: {inputValue: value},
-                url:'/CraftingCalculator?handler=ProcessInput',
-                type:'GET',
-                success: function (result)
-                {
-                    $("#craftItem").html(result);
-                    calcCrafting(document.getElementById("journeymen").value, document.getElementById("experts").value, document.getElementById("masters").value);
-                },
-                error: function () 
-                {
-                    console.log("error in ajax");
-                }
-            });
-        }
-        function calcCrafting(j, e, m) {
-            $.ajax({
-                data: {journeymen: j, experts: e, masters: m},
-                url:'/CraftingCalculator?handler=ProcessCrafters',
-                type:'GET',
-                success: function (result)
-                {
-                    $("#calcResults").html(result);
-                },
-                error: function () 
-                {
-                    console.log("error in ajax");
-                }
-            });
-        }
-
-        function handleChange(checkbox) {
-            $.ajax({
-                data: {checkboxValue: checkbox.checked},
-                url:'/CraftingCalculator?handler=ProcessCheckbox',
-                type:'GET',
-                success: function (result)
-                {
-                    console.log("checkbox logged");
-                },
-                error: function () 
-                {
-                    console.log("error in ajax");
-                }
-            });
-        }
-    </script>
-}
+    function handleChange(checkbox) {
+        $.ajax({
+            data: {checkboxValue: checkbox.checked},
+            url:'/CraftingCalculator?handler=ProcessCheckbox',
+            type:'GET',
+            success: function (result)
+            {
+                console.log("checkbox logged");
+            },
+            error: function () 
+            {
+                console.log("error in ajax");
+            }
+        });
+    }
+</script>

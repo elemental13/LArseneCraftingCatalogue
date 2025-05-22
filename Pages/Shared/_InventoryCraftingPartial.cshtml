@@ -1,0 +1,113 @@
+@using LArseneCraftingCatalogue.Services
+@model InventoryModel
+
+@inject CraftingService craftingService
+@inject CraftingContext _db
+
+<div class="container">
+    <input type="text" class="searchBar" id="craftingSearchBar" onkeyup="searchCraftables()" placeholder="Search ...">
+    <br />
+    <div style="width:100%; margin:0 auto;">
+        <table id="craftingTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Rarity</th>
+                    <th>Attunement</th>
+                    <th>Component Type</th>
+                    <th>MetaTag</th>
+                    <th>Component Name</th>
+                    <th></th>
+                </tr>
+            </thead>
+            @foreach (var item in craftingService.GetInventoryMagicItems()) {
+                <tr>
+                    <td>@item?.Name</td>
+                    <td>@item?.MagicItemType</td>
+                    <td>@item?.ItemValue</td>
+                    <td>@item?.Rarity</td>
+                    <td>@item?.Attunement</td>
+                    <td>@_db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == (item?.MonsterComponentId ?? 0))?.Type</td>
+                    <td>@item?.MetaTag</td>
+                    <td>@_db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == (item?.MonsterComponentId ?? 0))?.Name</td>
+                    <td><button onclick='craft(@item?.MagicItemId ?? 0, @item?.MonsterComponentId ?? 0, "@_db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == (item?.MonsterComponentId ?? 0))?.Name")'>Craft</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+@{
+    <script>
+        function searchCraftables() {
+            // Declare variables
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("craftingSearchBar");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("craftingTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                // only check the first column
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function craft(item, part, partName) {
+            // read from local storage
+            var partsData = JSON.parse(window.localStorage.getItem('partsList') ?? '[]');
+            // remove
+            const index = partsData.indexOf(part);
+            if (index > -1) partsData.splice(index, 1);
+            // now store
+            window.localStorage.setItem('partsList', JSON.stringify(partsData));
+
+            $.ajax({
+                data: {monsterPartId: part},
+                url:'/Inventory?handler=ProcessRemovePart',
+                type:'GET',
+                success: function (result)
+                {
+                    // set the part list
+                    $("#partList").html(result);
+                    // now that the parts are updated, lets update the crafting list
+                    makeItem(item);
+                    // and finally redirect you to the crafting page
+                    window.location.href = ("/CraftingCalculator/" + item);
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+
+        function makeItem(item) {
+            $.ajax({
+                data: {monsterPartId: item},
+                url:'/Inventory?handler=ProcessCraftingItem',
+                type:'GET',
+                success: function (result)
+                {
+                    $("#craftingList").html(result);
+                },
+                error: function () 
+                {
+                    console.log("error in ajax");
+                }
+            });
+        }
+    </script>
+}
+
