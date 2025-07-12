@@ -14,20 +14,23 @@ public class IndexModel(ILogger<IndexModel> logger, CraftingContext db) : PageMo
     {
         // empty the list
         CraftableItems = [];
-        
+
         if (string.IsNullOrEmpty(inputValue))
         {
             CraftableItems = _db.MagicItems.ToList();
-        } else {
+        }
+        else
+        {
             var monsterComponents = GetMonsterComponents(inputValue);
 
-            foreach (var component in monsterComponents ?? []) {
+            foreach (var component in monsterComponents ?? [])
+            {
                 CraftableItems.AddRange(_db.MagicItems.ToList().FindAll(x => x.MonsterComponentId == component?.MonsterComponentId));
             }
         }
         ViewData["CraftableItems"] = CraftableItems;
 
-        var partialPage =  new PartialViewResult
+        var partialPage = new PartialViewResult
         {
             ViewName = "_CraftableItemsPartial",
             ViewData = ViewData,
@@ -40,16 +43,18 @@ public class IndexModel(ILogger<IndexModel> logger, CraftingContext db) : PageMo
     {
         // empty the list
         CraftableItems = [];
-        
+
         if (string.IsNullOrEmpty(inputValue))
         {
             CraftableItems = _db.MagicItems.ToList();
-        } else {
+        }
+        else
+        {
             CraftableItems = _db.MagicItems.ToList().FindAll(x => x.Name?.ToLower().Contains(inputValue.ToLower()) ?? false);
         }
         ViewData["CraftableItems"] = CraftableItems;
 
-        var partialPage =  new PartialViewResult
+        var partialPage = new PartialViewResult
         {
             ViewName = "_CraftableItemsPartial",
             ViewData = ViewData,
@@ -71,5 +76,10 @@ public class IndexModel(ILogger<IndexModel> logger, CraftingContext db) : PageMo
     public MonsterComponent? GetMonsterComponent(int id)
     {
         return _db.MonsterComponents.ToList().Find(x => x.MonsterComponentId == id);
+    }
+    
+    public Material? GetMaterial(int id)
+    {
+        return _db.Materials.ToList().Find(x => x.MaterialId == id);
     }
 }

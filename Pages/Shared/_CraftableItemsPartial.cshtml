@@ -15,15 +15,27 @@
             </tr>
         </thead>
         @foreach (var item in Model.ViewData["CraftableItems"] as List<MagicItem> ?? new List<MagicItem>()) {
+            var componentType = "";
+            var componentName = "";
+            if (item.MonsterComponentId > 0)
+            {
+                var monsterPart = Model.GetMonsterComponent(item?.MonsterComponentId ?? 0);
+                componentType = monsterPart?.Type;
+                componentName = monsterPart?.Name;
+            } else if(item.MaterialId > 0) {
+                var material = Model.GetMaterial(item.MaterialId);
+                componentType = "Material";
+                componentName = material?.Name;
+            }
             <tr>
                 <td>@item?.Name</td>
                 <td>@item?.MagicItemType</td>
                 <td>@item?.ItemValue</td>
                 <td>@item?.Rarity</td>
                 <td>@item?.Attunement</td>
-                <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Type</td>
+                <td>@componentType</td>
                 <td>@item?.MetaTag</td>
-                <td>@Model.GetMonsterComponent(item?.MonsterComponentId ?? 0)?.Name</td>
+                <td>@componentName</td>
             </tr>
         }
     </table>

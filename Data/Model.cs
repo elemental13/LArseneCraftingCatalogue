@@ -35,10 +35,10 @@ public class CraftingContext : DbContext
         var weaponList = Operations.CreateWeapons(toolList);
 
         var monsterComponentList = Operations.CreateMonsterComponents();
-        var magicItemList = Operations.CreateMagicItems(monsterComponentList);
+        var materialList = Operations.CreateMaterials();
+        var magicItemList = Operations.CreateMagicItems(monsterComponentList, materialList);
         var essenseList = Operations.CreateEssences();
         var skillChecksList = Operations.CreateSkillChecks();
-        var materialList = Operations.CreateMaterials();
 
         // seed the database with initial data, using HasData will make sure it only is created if it doesnt already exist
         modelBuilder.Entity<Tool>().HasData(toolList);
@@ -101,6 +101,7 @@ public class MagicItem
     public string? Attunement { get; set; }
     public string? MetaTag { get; set; }
     public int MonsterComponentId { get; set; }
+    public int MaterialId { get; set; }
 }
 
 public class MonsterComponent

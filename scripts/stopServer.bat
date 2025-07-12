@@ -1,0 +1,1 @@
+ssh pi@raspberrypi "killall LArseneCraftingCatalogue"
