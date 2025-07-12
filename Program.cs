@@ -19,6 +19,7 @@ builder.Services.AddDbContext<CraftingContext>(options =>
     options.UseSqlite($"Data Source={DbPath}"), ServiceLifetime.Transient);
 
 builder.Services.AddSingleton<CraftingService>();
+builder.WebHost.UseUrls("http://*:5000");
 
 var app = builder.Build();
 
